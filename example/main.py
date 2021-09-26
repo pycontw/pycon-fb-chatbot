@@ -160,6 +160,14 @@ def webhook():
         messenger.handle(request.get_json(force=True))
     return ''
 
+@app.route('/', methods=['GET'])
+def verify():
+ # Webhook verification
+    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
+        if not request.args.get("hub.verify_token") == os.getenv("fb_verify_token"):
+            return "Verification token mismatch", 403
+        return request.args["hub.challenge"], 200
+    return "Hello world", 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
