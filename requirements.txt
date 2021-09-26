@@ -18,7 +18,7 @@ pkginfo==1.4.2
 pluggy==0.6.0
 py==1.5.3
 pyandoc==0.2.0
-pycodestyle==2.4.0
+pycodestyle==2.3.0
 pyflakes==1.6.0
 pylint==1.9.2
 pytest==3.6.2
