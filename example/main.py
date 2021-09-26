@@ -144,13 +144,13 @@ class Messenger(BaseMessenger):
 
 app = Flask(__name__)
 app.debug = True
-messenger = Messenger(os.environ.get('FB_PAGE_TOKEN'))
+messenger = Messenger(os.getenv('FB_PAGE_TOKEN'))
 
 
 @app.route('/webhook', methods=['GET', 'POST'])
 def webhook():
     if request.method == 'GET':
-        if request.args.get('hub.verify_token') == os.environ.get('FB_VERIFY_TOKEN'):
+        if request.args.get('hub.verify_token') == os.getenv('FB_VERIFY_TOKEN'):
             if request.args.get('init') and request.args.get('init') == 'true':
                 messenger.init_bot()
                 return ''
@@ -164,7 +164,7 @@ def webhook():
 def verify():
  # Webhook verification
     if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
-        if not request.args.get("hub.verify_token") == os.getenv("fb_verify_token"):
+        if not request.args.get("hub.verify_token") == os.getenv("FB_VERIFY_TOKEN"):
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
     return "Hello world", 200
