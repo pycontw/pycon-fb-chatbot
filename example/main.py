@@ -13,6 +13,8 @@ from fbmessenger.thread_settings import (
     PersistentMenu,
     MessengerProfile,
 )
+import dialogflow
+from google.api_core.exceptions import InvalidArgument
 
 
 def get_button(ratio):
@@ -158,16 +160,31 @@ def webhook():
         raise ValueError('FB_VERIFY_TOKEN does not match.')
     elif request.method == 'POST':
         messenger.handle(request.get_json(force=True))
+        print(request.get_json(force=True))
+        print(request.get_json(force=True)['entry'][0]['messaging'][0]['message']['text'])
+        reply = _get_result_from_dialogflow(text_to_be_analyzed=request.get_json(force=True)['entry'][0]['messaging'][0]['message']['text'])
+        try:
+            messenger.send({'text': reply}, 'RESPONSE', notification_type='REGULAR', timeout=4)
+        except Exception as e:
+            print(e)
+            messenger.send({'text': '我不知道'}, 'RESPONSE', notification_type='REGULAR', timeout=4)
     return ''
 
-@app.route('/', methods=['GET'])
-def verify():
- # Webhook verification
-    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
-        if not request.args.get("hub.verify_token") == os.getenv("FB_VERIFY_TOKEN"):
-            return "Verification token mismatch", 403
-        return request.args["hub.challenge"], 200
-    return "Hello world", 200
+
+def _get_result_from_dialogflow(text_to_be_analyzed: str) -> str:
+    DIALOGFLOW_PROJECT_ID = 'pycontw-225217'
+    DIALOGFLOW_LANGUAGE_CODE = 'en'
+    SESSION_ID = 'anything'
+
+    session_client = dialogflow.SessionsClient()
+    session = session_client.session_path(DIALOGFLOW_PROJECT_ID, SESSION_ID)
+    text_input = dialogflow.types.TextInput(text=text_to_be_analyzed, language_code=DIALOGFLOW_LANGUAGE_CODE)
+    query_input = dialogflow.types.QueryInput(text=text_input)
+    try:
+        response = session_client.detect_intent(session=session, query_input=query_input)
+    except InvalidArgument:
+        raise
+    return '\n'.join(fulfillment_message.text.text[0] for fulfillment_message in response.query_result.fulfillment_messages)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
