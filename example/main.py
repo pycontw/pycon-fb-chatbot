@@ -165,7 +165,10 @@ def webhook():
         print(request.get_json(force=True))
         print(request.get_json(force=True)['entry'][0]['messaging'][0]['message']['text'])
         reply = _get_result_from_dialogflow(text_to_be_analyzed=request.get_json(force=True)['entry'][0]['messaging'][0]['message']['text'])
-        upload_message_to_bigquery(request.get_json(force=True))
+        try:
+            upload_message_to_bigquery(request.get_json(force=True))
+        except Exception as e:
+            print(e)
         try:
             messenger.send({'text': reply}, 'RESPONSE', notification_type='REGULAR', timeout=4)
         except Exception as e:
@@ -193,13 +196,9 @@ def upload_message_to_bigquery(json : dict):
     # PROJECT_ID =os.getenv("BIGQUERY_PROJECT")
     project_id = 'pycontw-225217'
     client = bigquery.Client(project=project_id)
-    table = client.dataset('ods').table('ods_pycontw_fb_messages')
-    try:
-        message = json['entry'][0]['messaging'][0]['message']['text']
-        timestamp = json['entry'][0]['messaging'][0]['timestamp']
-    except ValueError as e:
-        print(e)
-    
+    table = client.dataset('ods').table('ods_pycontw_fb_messages')    
+    message = json['entry'][0]['messaging'][0]['message']['text']
+    timestamp = json['entry'][0]['messaging'][0]['timestamp']   
     date = datetime.fromtimestamp(timestamp/1000).strftime('%Y-%m-%d %H:%M:%S')
     upload_message = [{"dates":date,"messages":message}]
     client.load_table_from_json(upload_message,table)
