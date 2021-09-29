@@ -1,5 +1,5 @@
 import os
-
+from datetime import datetime
 from flask import Flask, request
 from fbmessenger import BaseMessenger
 from fbmessenger.templates import GenericTemplate
@@ -190,13 +190,19 @@ def _get_result_from_dialogflow(text_to_be_analyzed: str) -> str:
     return '\n'.join(fulfillment_message.text.text[0] for fulfillment_message in response.query_result.fulfillment_messages)
 
 def upload_message_to_bigquery(json : dict):
-    PROJECT_ID = 'pycontw-225217'
-    client = bigquery.Client(project=PROJECT_ID)
-    table = client.dataset("test").table("Uploadtest")
-    message = json['entry'][0]['messaging'][0]['message']['text']
-    timestamp = json['entry'][0]['messaging'][0]['timestamp']
-    fb_message = [{"timestamp":timestamp,"message":message}]
-    client.load_table_from_json(fb_message,table)
+    # PROJECT_ID =os.getenv("BIGQUERY_PROJECT")
+    project_id = 'pycontw-225217'
+    client = bigquery.Client(project=project_id)
+    table = client.dataset('ods').table('ods_pycontw_fb_messages')
+    try:
+        message = json['entry'][0]['messaging'][0]['message']['text']
+        timestamp = json['entry'][0]['messaging'][0]['timestamp']
+    except ValueError as e:
+        print(e)
+    
+    date = datetime.fromtimestamp(timestamp/1000).strftime('%Y-%m-%d %H:%M:%S')
+    upload_message = [{"dates":date,"messages":message}]
+    client.load_table_from_json(upload_message,table)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
