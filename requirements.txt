@@ -33,3 +33,4 @@ wrapt==1.10.11
 flask
 fbmessenger
 dialogflow==1.1.1
+google-cloud-bigquery

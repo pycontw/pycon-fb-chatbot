@@ -1,5 +1,5 @@
 import os
-
+from datetime import datetime
 from flask import Flask, request
 from fbmessenger import BaseMessenger
 from fbmessenger.templates import GenericTemplate
@@ -15,6 +15,8 @@ from fbmessenger.thread_settings import (
 )
 import dialogflow
 from google.api_core.exceptions import InvalidArgument
+from google.cloud import bigquery
+
 
 
 def get_button(ratio):
@@ -164,6 +166,10 @@ def webhook():
         print(request.get_json(force=True)['entry'][0]['messaging'][0]['message']['text'])
         reply = _get_result_from_dialogflow(text_to_be_analyzed=request.get_json(force=True)['entry'][0]['messaging'][0]['message']['text'])
         try:
+            upload_message_to_bigquery(request.get_json(force=True))
+        except Exception as e:
+            print(e)
+        try:
             messenger.send({'text': reply}, 'RESPONSE', notification_type='REGULAR', timeout=4)
         except Exception as e:
             print(e)
@@ -185,6 +191,17 @@ def _get_result_from_dialogflow(text_to_be_analyzed: str) -> str:
     except InvalidArgument:
         raise
     return '\n'.join(fulfillment_message.text.text[0] for fulfillment_message in response.query_result.fulfillment_messages)
+
+def upload_message_to_bigquery(json : dict):
+    # PROJECT_ID =os.getenv("BIGQUERY_PROJECT")
+    project_id = 'pycontw-225217'
+    client = bigquery.Client(project=project_id)
+    table = client.dataset('ods').table('ods_pycontw_fb_messages')    
+    message = json['entry'][0]['messaging'][0]['message']['text']
+    timestamp = json['entry'][0]['messaging'][0]['timestamp']   
+    date = datetime.fromtimestamp(timestamp/1000).strftime('%Y-%m-%d %H:%M:%S')
+    upload_message = [{"dates":date,"messages":message}]
+    client.load_table_from_json(upload_message,table)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
