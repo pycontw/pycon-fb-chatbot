@@ -95,6 +95,7 @@ class Messenger(BaseMessenger):
     def message(self, message):
         action = process_message(message)
         res = self.send(action, 'RESPONSE')
+        self.send_generic_template('placeholder_of_payload')
         app.logger.debug('Response: {}'.format(res))
 
     def delivery(self, message):
@@ -150,7 +151,6 @@ app = Flask(__name__)
 app.debug = True
 messenger = Messenger(os.getenv('FB_PAGE_TOKEN'))
 
-
 @app.route('/webhook', methods=['GET', 'POST'])
 def webhook():
     if request.method == 'GET':
@@ -205,3 +205,4 @@ def upload_message_to_bigquery(json : dict):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
+
