@@ -424,7 +424,6 @@ class BaseMessenger(object):
             timeout=timeout,
         )
 
-
     def send_action(self, sender_action, timeout=None):
         return self.client.send_action(
             sender_action, self.get_user_id(), timeout=timeout
