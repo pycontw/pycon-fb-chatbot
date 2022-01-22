@@ -1,5 +1,24 @@
 # Facebook Messenger
 
+## How to Deploy & Restart
+
+About Flask server:
+1. `. venv/bin/activate`
+2. `. ./env.sh`
+3. `nohup flask run --reload &`
+4. How to check the server log?: `tail -f nohup.out` (Ctrl+C to exit)
+
+How to Reset Ngrok's Webhook URL:
+1. `gcloud beta compute ssh --zone "asia-east1-b" "datateam-airflow"  --project "pycontw-225217" -- -NL 4040:localhost:4040`
+3. open your browser and go to http://localhost:4040/status
+4. `nohup ./ngrok http 5000 &`
+5. port-forward ngrok to your local: `gcloud beta compute ssh --zone "asia-east1-b" "datateam-airflow"  --project "pycontw-225217" -- -NL 4040:localhost:4040`
+6. check the https ngork url: <img width="472" alt="Screen Shot 2022-01-22 at 9 41 42 PM" src="https://user-images.githubusercontent.com/9366404/150640772-9a2cbe44-d956-4917-9eb6-66de76112560.png">
+1. go to https://developers.facebook.com/
+2. update the ngrok url: <img width="531" alt="Screen Shot 2022-01-22 at 9 55 19 PM" src="https://user-images.githubusercontent.com/9366404/150641240-1122e5df-1e77-456f-87fb-0a161c16c9d5.png">
+
+
+
 [![PyPI](https://img.shields.io/pypi/v/fbmessenger.svg?maxAge=2592000)](https://pypi.python.org/pypi/fbmessenger)
 [![Build Status](https://travis-ci.org/rehabstudio/fbmessenger.svg?branch=master)](https://travis-ci.org/rehabstudio/fbmessenger)
 [![Coverage Status](https://coveralls.io/repos/github/rehabstudio/fbmessenger/badge.svg?branch=master)](https://coveralls.io/github/rehabstudio/fbmessenger?branch=master)
