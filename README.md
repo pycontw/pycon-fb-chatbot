@@ -3,21 +3,32 @@
 ## How to Deploy & Restart
 
 About Flask server:
-1. `. venv/bin/activate`
-2. `. ./env.sh`
-3. `nohup flask run --reload &`
+1. `. venv/bin/activate` activate virtual environment
+2. `. ./env.sh` export all the environment variables needed
+3. `nohup flask run --reload &` run flask in background
 4. How to check the server log?: `tail -f nohup.out` (Ctrl+C to exit)
 
-How to Reset Ngrok's Webhook URL:
+How to Reset Ngrok's Webhook URL (in local terminal):
 1. `gcloud beta compute ssh --zone "asia-east1-b" "datateam-airflow"  --project "pycontw-225217" -- -NL 4040:localhost:4040`
-3. open your browser and go to http://localhost:4040/status
-4. `nohup ./ngrok http 5000 &`
-5. port-forward ngrok to your local: `gcloud beta compute ssh --zone "asia-east1-b" "datateam-airflow"  --project "pycontw-225217" -- -NL 4040:localhost:4040`
-6. check the https ngork url:
+2. open your browser and go to http://localhost:4040/status
+3. `nohup ./ngrok http 5000 &`
+4. port-forward ngrok to your local: `gcloud beta compute ssh --zone "asia-east1-b" "datateam-airflow"  --project "pycontw-225217" -- -NL 4040:localhost:4040`
+5. check the https ngrok url:
 
-    <img width="472" alt="Screen Shot 2022-01-22 at 9 41 42 PM" src="https://user-images.githubusercontent.com/9366404/150640772-9a2cbe44-d956-4917-9eb6-66de76112560.png">
-8. go to https://developers.facebook.com/
-9. update the ngrok url: <img width="531" alt="Screen Shot 2022-01-22 at 9 55 19 PM" src="https://user-images.githubusercontent.com/9366404/150641240-1122e5df-1e77-456f-87fb-0a161c16c9d5.png">
+<img width="472" alt="Screen Shot 2022-01-22 at 9 41 42 PM" src="https://user-images.githubusercontent.com/9366404/150640772-9a2cbe44-d956-4917-9eb6-66de76112560.png">
+
+
+How to Reset Ngrok's Webhook URL (in GCP browser SSH):
+1. `nohop ./ngrok http 5000 > /output/null &` run ngrok in background
+2. `export WEBHOOK_URL="$(curl http://localhost:4040/api/tunnels | jq ".tunnels[0].public_url")"
+` export the ngrok url as a variable
+3. `printenv WEBHOOK_URL` check the https ngork url
+
+
+Go to Facebook Developers to paste the ngrok url:
+1. go to https://developers.facebook.com/
+2. update the ngrok url: 
+<img width="531" alt="Screen Shot 2022-01-22 at 9 55 19 PM" src="https://user-images.githubusercontent.com/9366404/150641240-1122e5df-1e77-456f-87fb-0a161c16c9d5.png">
 
 
 
