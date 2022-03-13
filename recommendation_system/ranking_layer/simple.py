@@ -51,7 +51,7 @@ class SimpleRankingModel(BaseRankingModel):
                     'date': candidate['date'],
                     'url': candidate['url']
                 })
-                new_candidate_per_ranker[candidate['title']] = (i + 1, candidate.get('score')) # (rank, score)
+                new_candidate_per_ranker[candidate['title']] = (i + 1, candidate.get('score', 1)) # (rank, score)
 
             new_candidates.append(new_candidate_per_ranker)
 
