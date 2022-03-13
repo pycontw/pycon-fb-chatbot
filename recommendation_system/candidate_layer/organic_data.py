@@ -10,7 +10,7 @@ user_features = {
                                 },
                 "is_volunteer": True,
                 "python_experience": 4,
-                "tags": ["youtube", "ML"],
+                "tags": ["youtube", "AI"],
                 "vectors": [0, 0, 0]
                 }
 

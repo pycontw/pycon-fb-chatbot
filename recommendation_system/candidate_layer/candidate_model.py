@@ -2,9 +2,11 @@
 
 from typing import Dict, List
 from recommendation_system.candidate_layer.base import BaseCandidateModel
-from organic_data import user_features, article_data
 from candidate_model_util import FastBM25
 
+
+# demo data
+from organic_data import user_features, article_data
 
 
 # class BaseCandidateModel:
@@ -12,10 +14,10 @@ from candidate_model_util import FastBM25
 #         a = 0
 
 
+
 class DemoCandidateModel(BaseCandidateModel):
     def __init__(self):
         super().__init__()
-        
         # init simple article data data process
         self.document_list, self.title2organic = self.simple_article_data_process()
         title_list = list(self.title2organic.keys())
