@@ -155,6 +155,11 @@ class MessengerClient(object):
                                             "url": "https://www.youtube.com/watch?v=S_1WBzXFyBs&t=3752s",
                                             "title": "View Website",
                                         },
+                                        {
+                                            "type": "postback",
+                                            "title": "Like",
+                                            "payload": "https://www.youtube.com/watch?v=S_1WBzXFyBs&t=3752s",
+                                        },
                                     ],
                                 },
                                 {
@@ -174,8 +179,8 @@ class MessengerClient(object):
                                         },
                                         {
                                             "type": "postback",
-                                            "title": "Start Chatting",
-                                            "payload": "DEVELOPER_DEFINED_PAYLOAD",
+                                            "title": "Like",
+                                            "payload": "https://www.youtube.com/watch?v=S_1WBzXFyBs&t=3752s",
                                         },
                                     ],
                                 },
@@ -196,8 +201,8 @@ class MessengerClient(object):
                                         },
                                         {
                                             "type": "postback",
-                                            "title": "Start Chatting",
-                                            "payload": "DEVELOPER_DEFINED_PAYLOAD",
+                                            "title": "Like",
+                                            "payload": "https://www.youtube.com/watch?v=S_1WBzXFyBs&t=3752s",
                                         },
                                     ],
                                 },
@@ -218,8 +223,8 @@ class MessengerClient(object):
                                         },
                                         {
                                             "type": "postback",
-                                            "title": "Start Chatting",
-                                            "payload": "DEVELOPER_DEFINED_PAYLOAD",
+                                            "title": "Like",
+                                            "payload": "https://www.youtube.com/watch?v=S_1WBzXFyBs&t=3752s",
                                         },
                                     ],
                                 },
