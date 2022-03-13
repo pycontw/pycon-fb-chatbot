@@ -16,7 +16,7 @@ You can test the system with the following command:
 
 ```
 # pip install pytest mock
-python -m pytest tests/test_recommendation_system_main.py
+python -m pytest tests/recommendation_system/test_recommendation_system_main.py
 ```
 
 ## Lint
@@ -25,5 +25,5 @@ You can lint the code by black:
 
 ```
 # pip install black
-black tests/test_recommendation_system_main.py
+black tests/recommendation_system/test_recommendation_system_main.py
 ```
