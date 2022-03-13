@@ -3,6 +3,7 @@
 ## How to Deploy & Restart
 
 About Flask server:
+0. prepare python3.7
 1. `. venv/bin/activate` activate virtual environment
 2. `. ./env.sh` export all the environment variables needed
 3. `nohup flask run --reload &` run flask in background
