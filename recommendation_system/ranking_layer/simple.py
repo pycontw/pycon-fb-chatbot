@@ -58,3 +58,9 @@ class SimpleRankingModel(BaseRankingModel):
         self._items_mapping = items_mapping
 
         return new_candidates
+
+    def build_user_embedding(self, user_features):
+        pass
+
+    def calc_similarity(self, user_features):
+        pass
