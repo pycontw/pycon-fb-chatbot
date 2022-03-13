@@ -1,3 +1,3 @@
 # How to invoke recommendation system on your local?
 
-`python main.py`
+`python -m recommendation_system.main`
