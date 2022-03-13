@@ -1,9 +1,9 @@
 import os
-
+from typing import List
 from flask import Flask, request
 from fbmessenger import BaseMessenger
 from fbmessenger.templates import GenericTemplate
-from fbmessenger.elements import Text, Button, Element
+from fbmessenger.elements import Text, Button, Element 
 from fbmessenger import quick_replies
 from fbmessenger.attachments import Image, Video
 from fbmessenger.thread_settings import (
@@ -13,7 +13,12 @@ from fbmessenger.thread_settings import (
     PersistentMenu,
     MessengerProfile,
 )
+import dialogflow
+from google.api_core.exceptions import InvalidArgument
+from google.cloud import bigquery
+from datetime import datetime
 
+intent = "unknown"
 
 def get_button(ratio):
     return Button(
@@ -91,6 +96,8 @@ class Messenger(BaseMessenger):
     def message(self, message):
         action = process_message(message)
         res = self.send(action, 'RESPONSE')
+        generic_resp = self.send_generic_template("placeholder_of_payload")
+        app.logger.debug(f"Generic Response: {generic_resp}")        
         app.logger.debug('Response: {}'.format(res))
 
     def delivery(self, message):
@@ -157,17 +164,65 @@ def webhook():
             return request.args.get('hub.challenge')
         raise ValueError('FB_VERIFY_TOKEN does not match.')
     elif request.method == 'POST':
+        import json
+        json.dump(request.get_json(force=True), open('fb_response.json','w'))
         messenger.handle(request.get_json(force=True))
+        print(request.get_json(force=True))
+        print('========================')
+        sentences = _get_sentences_from_dialogflow(text_to_be_analyzed=request.get_json(force=True)['entry'][0]['messaging'][0]['message']['text'])
+        try:    
+            upload_message_to_bigquery(request.get_json(force=True))
+        except Exception as e:
+            print(e)
+        try:
+            for sentnece in sentences:
+                messenger.send({'text': sentnece}, 'RESPONSE', notification_type='REGULAR', timeout=4)
+            quick_reply_1 = quick_replies.QuickReply(title='Do something', payload='Send me this payload s')
+            quick_reply_2 = quick_replies.QuickReply(title='Do something else', payload='Send me this other payloadb')
+            quick_replies_var = quick_replies.QuickReplies(quick_replies=[
+                quick_reply_1,
+                quick_reply_2
+            ])
+            text = { 'text': 'A message' }
+            text['quick_replies'] = quick_replies_var.to_dict()
+            messenger.send(text, 'RESPONSE', notification_type='REGULAR', timeout=4)
+        except Exception as e:
+            print('error!!!!!!!!!!')
+            print(e)
+            print('error!!!!!!!!!!')
+            messenger.send({'text': '我不知道'}, 'RESPONSE', notification_type='REGULAR', timeout=4)
     return ''
 
-@app.route('/', methods=['GET'])
-def verify():
- # Webhook verification
-    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
-        if not request.args.get("hub.verify_token") == os.getenv("FB_VERIFY_TOKEN"):
-            return "Verification token mismatch", 403
-        return request.args["hub.challenge"], 200
-    return "Hello world", 200
+
+def _get_sentences_from_dialogflow(text_to_be_analyzed: str) -> List[str]:
+    global intent
+    DIALOGFLOW_PROJECT_ID = 'pycontw-225217'
+    DIALOGFLOW_LANGUAGE_CODE = 'en'
+    SESSION_ID = 'anything'
+
+    session_client = dialogflow.SessionsClient()
+    session = session_client.session_path(DIALOGFLOW_PROJECT_ID, SESSION_ID)
+    text_input = dialogflow.types.TextInput(text=text_to_be_analyzed, language_code=DIALOGFLOW_LANGUAGE_CODE)
+    query_input = dialogflow.types.QueryInput(text=text_input)
+    try:
+        response = session_client.detect_intent(session=session, query_input=query_input)
+        intent = response.query_result.intent.display_name
+    except InvalidArgument:
+        raise
+    return [fulfillment_message.text.text[0] for fulfillment_message in response.query_result.fulfillment_messages]
+
+def upload_message_to_bigquery(json : dict):
+    global intent
+    project_id = 'pycontw-225217'
+    client = bigquery.Client(project=project_id)
+    table = client.dataset('ods').table('ods_pycontw_fb_messages')    
+    message = json['entry'][0]['messaging'][0]['message']['text']
+    timestamp = json['entry'][0]['messaging'][0]['timestamp']   
+    date = datetime.fromtimestamp(timestamp/1000).strftime('%Y-%m-%d %H:%M:%S')
+    if intent != "Default Fallback Intent":
+        upload_message = [{"dates":date,"messages":message,"intent":intent}]
+        client.load_table_from_json(upload_message,table)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
+
