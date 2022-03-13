@@ -18,10 +18,11 @@ class RecommendationSystem(object):
         experiment_config: Dict = cls._load_experiment_config(recipient_id)
         user_features: Dict = cls._get_feature(recipient_id)
         candidates: List[Dict] = []
-        for cancidate_model in cls._get_candidate_models(experiment_config):
-            candidates += cancidate_model.get_candidates(user_features)
+        for cancidate_model, kargs in cls._get_candidate_models(experiment_config):
+            candidates += cancidate_model.get_candidates(user_features, **kargs)
         # TODO: For now, it only support 1 ranking layer. We should suuport multiple ranking layers to sort at some point.
-        result = cls._get_ranking_model(experiment_config).rank(candidates)
+        ranking_model, ranking_model_kargs = cls._get_ranking_model(experiment_config)
+        result = ranking_model.rank(candidates, **ranking_model_kargs)
         filtered_result = cls._filter(result)
         return filtered_result
 
@@ -32,10 +33,10 @@ class RecommendationSystem(object):
         """
         return {
             "candidate_models": [
-                "demo",
+                {"name": "demo", "kargs": {"top_k": 50}},
                 # 'other candidate model for you guys to implement'
             ],
-            "ranking_model": "demo",
+            "ranking_model": {"name": "demo", "kargs": {"top_k": 2}},
             # TODO: should replace base ranking model with your own!
         }
 
@@ -65,15 +66,21 @@ class RecommendationSystem(object):
         TODO: should only return candidate models specified in experiment_config
         """
         return [
-            CandidateFactory.create(candidate_model_name=candidate_model_name)
-            for candidate_model_name in experiment_config["candidate_models"]
+            (
+                CandidateFactory.create(
+                    candidate_model_name=candidate_model_config["name"]
+                ),
+                candidate_model_config.get("kargs", {}),
+            )
+            for candidate_model_config in experiment_config["candidate_models"]
         ]
 
     @staticmethod
     def _get_ranking_model(experiment_config: Dict):
         # TODO: For now, it only return 1 ranking model. We should implement multiple ranking models to sort at some point.
-        ranking_model_name = experiment_config["ranking_model"]
-        return RankingFactory.create(ranking_model_name=ranking_model_name)
+        ranking_model_name = experiment_config["ranking_model"]["name"]
+        kargs = experiment_config["ranking_model"].get("kargs", {})
+        return (RankingFactory.create(ranking_model_name=ranking_model_name), kargs)
 
     @staticmethod
     def _filter(result: List[Dict]) -> List[Dict]:

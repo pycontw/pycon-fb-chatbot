@@ -6,8 +6,8 @@ class DemoCandidateModel(BaseCandidateModel):
     def __init__(self):
         super().__init__()
 
-    def get_candidates(self, user_features: Dict) -> List[Dict]:
-        return [
+    def get_candidates(self, user_features: Dict, top_k: int) -> List[Dict]:
+        candidates = [
             {
                 "title": "2021 PyCon TW x PyHug Meetup",
                 "image_url": "https://pbs.twimg.com/media/E_Skh8MVQAUmPHm.jpg",
@@ -29,3 +29,5 @@ class DemoCandidateModel(BaseCandidateModel):
                 "subtitle": "公道價八萬一",
             },
         ]
+
+        return candidates[:top_k]
