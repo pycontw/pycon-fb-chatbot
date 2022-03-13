@@ -9,8 +9,14 @@ class SimpleRankingModel(BaseRankingModel):
     def rank(self, user_features: Dict, candidates: List[List[Dict]]) -> List[Dict]:
         candidates = self.process_data(candidates=candidates)
         rankings = self.calc_candidate_score(candidates=candidates)
+        new_candidates = self.get_items([
+            item for item, score in rankings
+        ])
 
-        return candidates
+        return new_candidates
+
+    def get_items(self, items):
+        return [self._items_mapping[i] for i in items]
 
     def calc_candidate_score(self, candidates):
         candidate_ranking = {}
