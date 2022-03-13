@@ -8,7 +8,7 @@ class RecommendationSystem(object):
     def recommend(cls, recipient_id: Text) -> List[Dict]:
         """
         main logic is as follow:
-        1. get experiment config
+        1. get experiment config 
         2. get feature
         3. use candidate layer to get candidates
         4. use ranking layer to sort candidates
