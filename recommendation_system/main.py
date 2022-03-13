@@ -35,7 +35,7 @@ class RecommendationSystem(object):
                 "demo",
                 # 'other candidate model for you guys to implement'
             ],
-            "ranking_model": "demo",
+            "ranking_model": "simple",
             # TODO: should replace base ranking model with your own!
         }
 
