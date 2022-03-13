@@ -7,9 +7,9 @@ from .error_messages import CHARACTER_LIMIT_MESSAGE
 logger = logging.getLogger(__name__)
 
 WEBVIEW_HEIGHT_RATIOS = [
-    'compact',
-    'tall',
-    'full',
+    "compact",
+    "tall",
+    "full",
 ]
 
 
@@ -19,12 +19,10 @@ class Text(object):
         self.quick_replies = quick_replies
 
     def to_dict(self):
-        d = {
-            'text': self.text
-        }
+        d = {"text": self.text}
 
         if self.quick_replies:
-            d['quick_replies'] = self.quick_replies.to_dict()
+            d["quick_replies"] = self.quick_replies.to_dict()
 
         return d
 
@@ -37,43 +35,49 @@ class DynamicText(object):
 
     def to_dict(self):
         dynamic_text = {
-            'text': self.text,
+            "text": self.text,
         }
 
         if self.fallback_text:
-            dynamic_text['fallback_text'] = self.fallback_text
+            dynamic_text["fallback_text"] = self.fallback_text
 
         d = {
-            'dynamic_text': dynamic_text,
+            "dynamic_text": dynamic_text,
         }
 
         if self.quick_replies:
-            d['quick_replies'] = self.quick_replies.to_dict()
+            d["quick_replies"] = self.quick_replies.to_dict()
 
         return d
 
 
 class Button(object):
     BUTTON_TYPES = [
-        'web_url',
-        'postback',
-        'phone_number',
-        'account_link',
-        'account_unlink',
+        "web_url",
+        "postback",
+        "phone_number",
+        "account_link",
+        "account_unlink",
     ]
 
-    def __init__(self, button_type, title=None, url=None,
-                 payload=None, webview_height_ratio=None,
-                 messenger_extensions=None, fallback_url=None,
-                 share_contents=None):
+    def __init__(
+        self,
+        button_type,
+        title=None,
+        url=None,
+        payload=None,
+        webview_height_ratio=None,
+        messenger_extensions=None,
+        fallback_url=None,
+        share_contents=None,
+    ):
 
         if button_type not in self.BUTTON_TYPES:
-            raise ValueError('Invalid button_type provided.')
+            raise ValueError("Invalid button_type provided.")
         if webview_height_ratio and webview_height_ratio not in WEBVIEW_HEIGHT_RATIOS:
-            raise ValueError('Invalid webview_height_ratio provided.')
+            raise ValueError("Invalid webview_height_ratio provided.")
         if title and len(title) > 20:
-            logger.warning(CHARACTER_LIMIT_MESSAGE.format(field='Title',
-                                                          maxsize=20))
+            logger.warning(CHARACTER_LIMIT_MESSAGE.format(field="Title", maxsize=20))
 
         self.button_type = button_type
         self.title = title
@@ -86,22 +90,22 @@ class Button(object):
 
     def to_dict(self):
         d = {
-            'type': self.button_type,
+            "type": self.button_type,
         }
 
         if self.title:
-            d['title'] = self.title
+            d["title"] = self.title
         if self.url:
-            d['url'] = self.url
+            d["url"] = self.url
         if self.payload:
-            d['payload'] = self.payload
-        if self.button_type == 'web_url':
+            d["payload"] = self.payload
+        if self.button_type == "web_url":
             if self.webview_height_ratio:
-                d['webview_height_ratio'] = self.webview_height_ratio
+                d["webview_height_ratio"] = self.webview_height_ratio
             if self.messenger_extensions:
-                d['messenger_extensions'] = 'true'
+                d["messenger_extensions"] = "true"
             if self.fallback_url:
-                d['fallback_url'] = self.fallback_url
+                d["fallback_url"] = self.fallback_url
         return d
 
 
@@ -110,9 +114,18 @@ class Element(object):
     To be used with the generic template to create a carousel
     """
 
-    def __init__(self, title, item_url=None, image_url=None,
-                 subtitle=None, buttons=None, quantity=None,
-                 price=None, currency=None, default_action=None):
+    def __init__(
+        self,
+        title,
+        item_url=None,
+        image_url=None,
+        subtitle=None,
+        buttons=None,
+        quantity=None,
+        price=None,
+        currency=None,
+        default_action=None,
+    ):
 
         self.title = title
         self.item_url = item_url
@@ -125,9 +138,9 @@ class Element(object):
 
         if default_action:
             if default_action.title:
-                raise ValueError('The default_action button may not have a title')
-            if default_action.button_type != 'web_url':
-                raise ValueError('The default_action button must be of type web_url')
+                raise ValueError("The default_action button may not have a title")
+            if default_action.button_type != "web_url":
+                raise ValueError("The default_action button must be of type web_url")
         self.default_action = default_action
 
     @property
@@ -137,8 +150,7 @@ class Element(object):
     @title.setter
     def title(self, title):
         if len(title) > 80:
-            logger.warning(CHARACTER_LIMIT_MESSAGE.format(field='Title',
-                                                          maxsize=80))
+            logger.warning(CHARACTER_LIMIT_MESSAGE.format(field="Title", maxsize=80))
         self._title = title
 
     @property
@@ -148,32 +160,29 @@ class Element(object):
     @subtitle.setter
     def subtitle(self, subtitle):
         if subtitle is not None and len(subtitle) > 80:
-            logger.warning(CHARACTER_LIMIT_MESSAGE.format(field='Subtitle',
-                                                          maxsize=80))
+            logger.warning(CHARACTER_LIMIT_MESSAGE.format(field="Subtitle", maxsize=80))
         self._subtitle = subtitle
 
     def to_dict(self):
         d = {
-            'title': self.title,
+            "title": self.title,
         }
         if self.item_url:
-            d['item_url'] = self.item_url
+            d["item_url"] = self.item_url
         if self.image_url:
-            d['image_url'] = self.image_url
+            d["image_url"] = self.image_url
         if self.subtitle:
-            d['subtitle'] = self.subtitle
+            d["subtitle"] = self.subtitle
         if self.quantity:
-            d['quantity'] = self.quantity
+            d["quantity"] = self.quantity
         if self.price:
-            d['price'] = self.price
+            d["price"] = self.price
         if self.currency:
-            d['currency'] = self.currency
+            d["currency"] = self.currency
         if self.default_action:
-            d['default_action'] = self.default_action.to_dict()
+            d["default_action"] = self.default_action.to_dict()
         if self.buttons:
-            d['buttons'] = [
-                button.to_dict() for button in self.buttons
-            ]
+            d["buttons"] = [button.to_dict() for button in self.buttons]
 
         return d
 
@@ -185,15 +194,11 @@ class Adjustment(object):
         self.amount = amount
 
     def to_dict(self):
-        return {
-            'name': self.name,
-            'amount': self.amount
-        }
+        return {"name": self.name, "amount": self.amount}
 
 
 class Address(object):
-    def __init__(self, street_1, city, postal_code,
-                 state, country, street_2=''):
+    def __init__(self, street_1, city, postal_code, state, country, street_2=""):
         # Required
         self.street_1 = street_1
         self.city = city
@@ -205,12 +210,12 @@ class Address(object):
 
     def to_dict(self):
         return {
-            'street_1': self.street_1,
-            'street_2': self.street_2,
-            'city': self.city,
-            'postal_code': self.postal_code,
-            'state': self.state,
-            'country': self.country,
+            "street_1": self.street_1,
+            "street_2": self.street_2,
+            "city": self.city,
+            "postal_code": self.postal_code,
+            "state": self.state,
+            "country": self.country,
         }
 
 
@@ -225,8 +230,8 @@ class Summary(object):
 
     def to_dict(self):
         return {
-            'subtotal': self.subtotal,
-            'shipping_cost': self.shipping_cost,
-            'total_tax': self.total_tax,
-            'total_cost': self.total_cost
+            "subtotal": self.subtotal,
+            "shipping_cost": self.shipping_cost,
+            "total_tax": self.total_tax,
+            "total_cost": self.total_cost,
         }
