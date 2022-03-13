@@ -41,7 +41,7 @@ class FastBM25:
     def main(self, query=str):
         query_ws = self.word_segmentation_func(batch_corpus=[query])[0]
         scores = self.bm25.get_scores(query_ws)
-        print(self.corpus_ws)
+        #xprint(self.corpus_ws)
         element_with_score = [[self.title_list[i], sent_ws, scores[i]] for i, sent_ws in enumerate(self.corpus_ws)]
         element_with_score = sorted(element_with_score, reverse=True, key=lambda x:x[2])
         return element_with_score

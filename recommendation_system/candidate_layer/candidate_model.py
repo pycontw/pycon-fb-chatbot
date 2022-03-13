@@ -1,15 +1,15 @@
 
 
 from typing import Dict, List
-from recommendation_system.candidate_layer.base import BaseCandidateModel
+#from recommendation_system.candidate_layer.base import BaseCandidateModel
 from organic_data import user_features, article_data
 from candidate_model_util import FastBM25
 
 
 
-# class BaseCandidateModel:
-#     def __init__(self):
-#         a = 0
+class BaseCandidateModel:
+    def __init__(self):
+        a = 0
 
 
 class DemoCandidateModel(BaseCandidateModel):
@@ -29,6 +29,7 @@ class DemoCandidateModel(BaseCandidateModel):
     def get_candidates(self, user_features: Dict) -> List[Dict]:
         tags = user_features['tags']
         query = ' '.join(tags)
+        print('Query : ', tags)
         doc_element_with_score = self.fast_bm25_model.main(query=query)
         candidates = [self.title2organic[doc_element[0]] for doc_element in doc_element_with_score]
         return candidates
