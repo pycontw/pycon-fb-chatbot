@@ -8,8 +8,23 @@ class SimpleRankingModel(BaseRankingModel):
 
     def rank(self, user_features: Dict, candidates: List[List[Dict]]) -> List[Dict]:
         candidates = self.process_data(candidates=candidates)
+        rankings = self.calc_candidate_score(candidates=candidates)
 
         return candidates
+
+    def calc_candidate_score(self, candidates):
+        candidate_ranking = {}
+
+        for item in self._items_mapping:
+            candidate_ranking.setdefault(item, [])
+            for ranker in candidates:
+                k, score = ranker[item]
+                candidate_ranking[item].append(score/k)
+
+        for item, scores in candidate_ranking.items():
+            candidate_ranking[item] = sum(scores)
+
+        return sorted(candidate_ranking.items(), key=lambda d: d[1], reverse=True)
 
     def process_data(self, candidates: List[List[Dict]]) -> List[List[Tuple]]:
         items_mapping = {}
