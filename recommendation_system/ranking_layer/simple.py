@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import List, Dict, Tuple
 
 from recommendation_system.ranking_layer.base import BaseRankingModel
@@ -9,14 +10,17 @@ class SimpleRankingModel(BaseRankingModel):
     def rank(self, user_features: Dict, candidates: List[List[Dict]]) -> List[Dict]:
         candidates = self.process_data(candidates=candidates)
         rankings = self.calc_candidate_score(candidates=candidates)
-        new_candidates = self.get_items([
-            item for item, score in rankings
-        ])
 
-        return new_candidates
+        new_candidates = []
+        for item, score in rankings:
+            new_item = self.get_item(item)
+            new_item['score'] = score
+            new_candidates.append(new_item)
 
-    def get_items(self, items):
-        return [self._items_mapping[i] for i in items]
+        return new_candidates[:3]
+
+    def get_item(self, item):
+        return deepcopy(self._items_mapping[item])
 
     def calc_candidate_score(self, candidates):
         candidate_ranking = {}
@@ -24,8 +28,9 @@ class SimpleRankingModel(BaseRankingModel):
         for item in self._items_mapping:
             candidate_ranking.setdefault(item, [])
             for ranker in candidates:
-                k, score = ranker[item]
-                candidate_ranking[item].append(score/k)
+                if item in ranker:
+                    k, score = ranker.get(item)
+                    candidate_ranking[item].append(score/k)
 
         for item, scores in candidate_ranking.items():
             candidate_ranking[item] = sum(scores)
@@ -40,13 +45,13 @@ class SimpleRankingModel(BaseRankingModel):
             new_candidate_per_ranker = {}
             for i, candidate in enumerate(ranker):
                 items_mapping.setdefault(candidate['title'], {
-                    'title': candidates['title'],
-                    'subtitle': candidates['subtitle'],
-                    'image_url': candidates['image_url'],
-                    'date': candidates['date'],
-                    'url': candidates['url']
+                    'title': candidate['title'],
+                    'subtitle': candidate['subtitle'],
+                    'image_url': candidate['image_url'],
+                    'date': candidate['date'],
+                    'url': candidate['url']
                 })
-                new_candidate_per_ranker[candidate['title']] = (i + 1, candidate['score']) # (rank, score)
+                new_candidate_per_ranker[candidate['title']] = (i + 1, candidate.get('score')) # (rank, score)
 
             new_candidates.append(new_candidate_per_ranker)
 
