@@ -7,7 +7,7 @@ class SimpleRankingModel(BaseRankingModel):
     def __init__(self) -> None:
         super().__init__()
 
-    def rank(self, user_features: Dict, candidates: List[List[Dict]]) -> List[Dict]:
+    def rank(self, user_features: Dict, candidates: List[List[Dict]], top_k: int) -> List[Dict]:
         candidates = self.process_data(candidates=candidates)
         rankings = self.calc_candidate_score(candidates=candidates)
 
@@ -17,7 +17,7 @@ class SimpleRankingModel(BaseRankingModel):
             new_item['score'] = score
             new_candidates.append(new_item)
 
-        return new_candidates[:3]
+        return new_candidates[:top_k]
 
     def get_item(self, item):
         return deepcopy(self._items_mapping[item])
