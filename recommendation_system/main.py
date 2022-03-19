@@ -17,11 +17,11 @@ class RecommendationSystem(object):
         """
         experiment_config: Dict = cls._load_experiment_config(recipient_id)
         user_features: Dict = cls._get_feature(recipient_id)
-        candidates: List[Dict] = []
+        candidates: List[List[Dict]] = []
         for cancidate_model in cls._get_candidate_models(experiment_config):
-            candidates += cancidate_model.get_candidates(user_features)
+            candidates.append(cancidate_model.get_candidates(user_features))
         # TODO: For now, it only support 1 ranking layer. We should suuport multiple ranking layers to sort at some point.
-        result = cls._get_ranking_model(experiment_config).rank(candidates)
+        result = cls._get_ranking_model(experiment_config).rank(user_features, candidates)
         filtered_result = cls._filter(result)
         return filtered_result
 
@@ -35,7 +35,7 @@ class RecommendationSystem(object):
                 "demo",
                 # 'other candidate model for you guys to implement'
             ],
-            "ranking_model": "demo",
+            "ranking_model": "simple",
             # TODO: should replace base ranking model with your own!
         }
 
