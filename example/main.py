@@ -1,14 +1,33 @@
 import os
 from datetime import datetime
-
+from flask import Flask, request
+from fbmessenger import BaseMessenger
+from fbmessenger.templates import GenericTemplate
+from fbmessenger.elements import Text, Button, Element
+from fbmessenger import quick_replies
+from pathlib import Path
+from fbmessenger.attachments import Image, Video
+import jmespath
+from fbmessenger.thread_settings import (
+    GreetingText,
+    GetStartedButton,
+    PersistentMenuItem,
+    PersistentMenu,
+    MessengerProfile,
+)
+import json
 import dialogflow
 from fbmessenger import BaseMessenger, quick_replies
 from fbmessenger.attachments import Image, Video
 from fbmessenger.elements import Button, Element, Text
 from fbmessenger.templates import GenericTemplate
-from fbmessenger.thread_settings import (GetStartedButton, GreetingText,
-                                         MessengerProfile, PersistentMenu,
-                                         PersistentMenuItem)
+from fbmessenger.thread_settings import (
+    GetStartedButton,
+    GreetingText,
+    MessengerProfile,
+    PersistentMenu,
+    PersistentMenuItem,
+)
 from flask import Flask, request
 from google.api_core.exceptions import InvalidArgument
 from google.cloud import bigquery
@@ -97,7 +116,8 @@ class Messenger(BaseMessenger):
     def message(self, message):
         action = process_message(message)
         res = self.send(action, "RESPONSE")
-        self.send_generic_template("placeholder_of_payload")
+        generic_resp = self.send_generic_template("placeholder_of_payload")
+        app.logger.debug(f"Generic Response: {generic_resp}")
         app.logger.debug("Response: {}".format(res))
 
     def delivery(self, message):
@@ -164,10 +184,26 @@ def webhook():
         raise ValueError("FB_VERIFY_TOKEN does not match.")
     elif request.method == "POST":
         messenger.handle(request.get_json(force=True))
-        print(request.get_json(force=True))
-        print(
-            request.get_json(force=True)["entry"][0]["messaging"][0]["message"]["text"]
-        )
+        payload = request.get_json(force=True)
+        if jmespath.search("entry[0].messaging[0].sender.id", payload) is not None:
+            post_back_event = [
+                {
+                    "user_id": jmespath.search(
+                        "entry[0].messaging[0].sender.id", payload
+                    ),
+                    "url": jmespath.search(
+                        "entry[0].messaging[0].postback.payload", payload
+                    ),
+                }
+            ]
+            postback_filename = "postback.json"
+            if not Path(postback_filename).exists():
+                post_back_events = []
+            else:
+                post_back_events = json.load(open(postback_filename, "r"))
+            post_back_events.extend(post_back_event)
+            json.dump(post_back_events, open(postback_filename, "w"))
+            return ""
         reply = _get_result_from_dialogflow(
             text_to_be_analyzed=request.get_json(force=True)["entry"][0]["messaging"][
                 0
