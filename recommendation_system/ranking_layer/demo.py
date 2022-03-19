@@ -6,5 +6,5 @@ class DemoRankingModel(BaseRankingModel):
     def __init__(self):
         super().__init__()
 
-    def rank(self, candidates: List[Dict]) -> List[Dict]:
-        return candidates
+    def rank(self, candidates: List[Dict], top_k: int) -> List[Dict]:
+        return candidates[:top_k]

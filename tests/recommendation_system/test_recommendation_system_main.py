@@ -37,7 +37,7 @@ def test_RecommendationSystem_recommend_one_candidate_model_one_ranking_model(
         MockRankingModel,
     )
     RecommendationSystem._load_experiment_config = staticmethod(
-        lambda v: {"candidate_models": ["1"], "ranking_model": "a"}
+        lambda v: {"candidate_models": [{"name": "1"}], "ranking_model": {"name": "a"}}
     )
 
     recipient_id = "1234"
@@ -59,7 +59,10 @@ def test_RecommendationSystem_recommend_two_candidate_models_one_ranking_model(
         MockRankingModel,
     )
     RecommendationSystem._load_experiment_config = staticmethod(
-        lambda v: {"candidate_models": ["1", "2"], "ranking_model": "a"}
+        lambda v: {
+            "candidate_models": [{"name": "1"}, {"name": "2"}],
+            "ranking_model": {"name": "a"},
+        }
     )
 
     recipient_id = "1234"
